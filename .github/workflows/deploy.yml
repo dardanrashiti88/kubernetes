@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set up kubectl
@@ -18,11 +18,10 @@ jobs:
       with:
         version: 'latest'
 
-    - name: Set up Kubeconfig
+    - name: Decode and configure Kubeconfig
       run: |
         mkdir -p $HOME/.kube
-        echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+        echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
 
-    - name: Deploy manifests (skip validation)
-      run: |
-        kubectl apply -f . --validate=false
+    - name: Deploy Kubernetes manifests
+      run: kubectl apply -f ./k8s/
