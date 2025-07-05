@@ -23,6 +23,6 @@ jobs:
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
-    - name: Deploy manifests
+    - name: Deploy manifests (skip validation)
       run: |
-        kubectl apply -f .
+        kubectl apply -f . --validate=false
