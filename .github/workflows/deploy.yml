@@ -1,4 +1,4 @@
-name: Deploy to Kubernetes
+name: Simple K8s Deploy
 
 on:
   push:
@@ -8,26 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: ⬇️ Checkout code
+    - name: Checkout
       uses: actions/checkout@v3
 
-    - name: 🛠 Set up kubectl
+    - name: Set up kubectl
       uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
 
-    - name: 🔐 Decode and configure kubeconfig
+    - name: Kubeconfig
       run: |
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
-        chmod 600 $HOME/.kube/config
 
-    - name: 🔍 Preview Kubernetes diff (optional)
+    - name: Apply YAMLs
       run: |
-        kubectl diff -f ./k8s/ || true
-
-    - name: 🚀 Deploy Kubernetes manifests
-      run: |
-        kubectl apply -f ./k8s/
+        kubectl apply -f .
