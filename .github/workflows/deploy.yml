@@ -1,4 +1,4 @@
-name: Simple K8s Deploy
+name: simple kubernetes deploy
 
 on:
   push:
