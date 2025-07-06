@@ -49,9 +49,21 @@ jobs:
         kubectl config get-contexts
         kubectl config view --minify
 
+    - name: Debug - Show cluster info
+      run: |
+        echo "Step 5: Showing cluster information..."
+        echo "Current context:"
+        kubectl config current-context || echo "No current context"
+        echo ""
+        echo "All contexts:"
+        kubectl config get-contexts || echo "No contexts found"
+        echo ""
+        echo "Cluster servers:"
+        kubectl config view -o jsonpath='{.clusters[*].cluster.server}' || echo "No cluster servers found"
+
     - name: Test connection
       run: |
-        echo "Step 5: Testing cluster connection..."
+        echo "Step 6: Testing cluster connection..."
         kubectl get nodes
 
     - name: Deploy to cluster
