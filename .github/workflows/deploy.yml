@@ -15,49 +15,45 @@ jobs:
     - name: Set up kubectl
       uses: azure/setup-kubectl@v3
 
-    - name: Check secret exists
+    - name: Debug - Check secret
       run: |
-        echo "Checking KUBECONFIG_B64 secret..."
+        echo "Step 1: Checking if KUBECONFIG_B64 secret exists..."
         if [ -z "${{ secrets.KUBECONFIG_B64 }}" ]; then
-          echo "❌ ERROR: KUBECONFIG_B64 secret is not set or is empty!"
-          echo "Please go to your repository Settings → Secrets and variables → Actions"
-          echo "Add a secret named 'KUBECONFIG_B64' with your base64-encoded kubeconfig"
+          echo "❌ KUBECONFIG_B64 secret is NOT set!"
+          echo "Please add this secret to your repository settings"
           exit 1
+        else
+          echo "✅ KUBECONFIG_B64 secret is set"
+          echo "Secret length: ${#KUBECONFIG_B64}"
         fi
-        echo "✅ KUBECONFIG_B64 secret is set"
 
-    - name: Setup kubeconfig
+    - name: Debug - Create kubeconfig
       run: |
+        echo "Step 2: Creating kubeconfig file..."
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
-        chmod 600 $HOME/.kube/config
-        
-        echo "Kubeconfig file created:"
-        ls -la $HOME/.kube/
-        
-        echo "File size:"
-        wc -c $HOME/.kube/config
-        
-        echo "First few lines of kubeconfig:"
-        head -5 $HOME/.kube/config
+        echo "✅ Kubeconfig file created"
+        echo "File size: $(wc -c < $HOME/.kube/config) bytes"
 
-    - name: Debug kubeconfig
+    - name: Debug - Show kubeconfig
       run: |
-        echo "=== KUBECONFIG FILE CONTENTS ==="
+        echo "Step 3: Showing kubeconfig contents..."
+        echo "=== KUBECONFIG START ==="
         cat $HOME/.kube/config
-        echo "=== END KUBECONFIG ==="
-        
-        echo "Current kubectl context:"
-        kubectl config current-context || echo "No context set"
-        
-        echo "Available contexts:"
-        kubectl config get-contexts || echo "No contexts found"
-        
-        echo "Cluster info:"
-        kubectl config view --minify || echo "Cannot view config"
+        echo "=== KUBECONFIG END ==="
+
+    - name: Debug - Test kubectl
+      run: |
+        echo "Step 4: Testing kubectl configuration..."
+        kubectl config current-context
+        kubectl config get-contexts
+        kubectl config view --minify
 
     - name: Test connection
-      run: kubectl get nodes
+      run: |
+        echo "Step 5: Testing cluster connection..."
+        kubectl get nodes
 
     - name: Deploy to cluster
       run: kubectl apply -f k8s/
+
