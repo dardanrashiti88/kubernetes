@@ -19,14 +19,4 @@ jobs:
       run: |
         echo "✅ Workflow is ready!"
         echo "When you have a Kubernetes cluster, add the KUBECONFIG_B64 secret"
-        echo "and uncomment the deployment steps below."
-        
-        # TODO: Add these steps when you have a cluster:
-        # - name: Setup kubeconfig
-        #   run: |
-        #     mkdir -p $HOME/.kube
-        #     echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
-        #     chmod 600 $HOME/.kube/config
-        # 
-        # - name: Deploy to cluster
-        #   run: kubectl apply -f k8s/
+        echo "and add deployment steps to deploy your applications."
