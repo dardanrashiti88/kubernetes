@@ -15,23 +15,34 @@ jobs:
     - name: Set up kubectl
       uses: azure/setup-kubectl@v3
 
+    - name: Check secret exists
+      run: |
+        echo "Checking KUBECONFIG_B64 secret..."
+        if [ -z "${{ secrets.KUBECONFIG_B64 }}" ]; then
+          echo "❌ ERROR: KUBECONFIG_B64 secret is not set or is empty!"
+          echo "Please go to your repository Settings → Secrets and variables → Actions"
+          echo "Add a secret named 'KUBECONFIG_B64' with your base64-encoded kubeconfig"
+          exit 1
+        fi
+        echo "✅ KUBECONFIG_B64 secret is set"
+
     - name: Setup kubeconfig
       run: |
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
         chmod 600 $HOME/.kube/config
-        echo "Kubeconfig file created"
+        
+        echo "Kubeconfig file created:"
         ls -la $HOME/.kube/
+        
+        echo "File size:"
+        wc -c $HOME/.kube/config
+        
+        echo "First few lines of kubeconfig:"
+        head -5 $HOME/.kube/config
 
     - name: Debug kubeconfig
       run: |
-        echo "Checking if KUBECONFIG_B64 secret is set..."
-        if [ -z "${{ secrets.KUBECONFIG_B64 }}" ]; then
-          echo "ERROR: KUBECONFIG_B64 secret is not set!"
-          exit 1
-        fi
-        echo "KUBECONFIG_B64 secret is set"
-        
         echo "=== KUBECONFIG FILE CONTENTS ==="
         cat $HOME/.kube/config
         echo "=== END KUBECONFIG ==="
