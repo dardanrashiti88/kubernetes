@@ -15,60 +15,18 @@ jobs:
     - name: Set up kubectl
       uses: azure/setup-kubectl@v3
 
-    - name: Debug - Check secret
+    - name: Echo message
       run: |
-        echo "Step 1: Checking if KUBECONFIG_B64 secret exists..."
-        if [ -z "${{ secrets.KUBECONFIG_B64 }}" ]; then
-          echo "❌ KUBECONFIG_B64 secret is NOT set!"
-          echo "Please add this secret to your repository settings"
-          exit 1
-        else
-          echo "✅ KUBECONFIG_B64 secret is set"
-          echo "Secret length: ${#KUBECONFIG_B64}"
-        fi
-
-    - name: Debug - Create kubeconfig
-      run: |
-        echo "Step 2: Creating kubeconfig file..."
-        mkdir -p $HOME/.kube
-        echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
-        echo "✅ Kubeconfig file created"
-        echo "File size: $(wc -c < $HOME/.kube/config) bytes"
-        echo "File permissions:"
-        ls -la $HOME/.kube/config
-
-    - name: Debug - Show kubeconfig
-      run: |
-        echo "Step 3: Showing kubeconfig contents..."
-        echo "=== KUBECONFIG START ==="
-        cat $HOME/.kube/config || echo "Failed to read kubeconfig file"
-        echo "=== KUBECONFIG END ==="
-
-    - name: Debug - Test kubectl
-      run: |
-        echo "Step 4: Testing kubectl configuration..."
-        echo "Current context:"
-        kubectl config current-context || echo "Failed to get current context"
-        echo ""
-        echo "All contexts:"
-        kubectl config get-contexts || echo "Failed to get contexts"
-        echo ""
-        echo "Cluster info:"
-        kubectl config view --minify || echo "Failed to view config"
-
-    - name: Debug - Show cluster servers
-      run: |
-        echo "Step 5: Showing cluster servers..."
-        echo "Cluster servers from kubeconfig:"
-        kubectl config view -o jsonpath='{.clusters[*].cluster.server}' || echo "Failed to get cluster servers"
-        echo ""
-        echo "Full config view:"
-        kubectl config view || echo "Failed to view full config"
-
-    - name: Test connection
-      run: |
-        echo "Step 6: Testing cluster connection..."
-        kubectl get nodes || echo "Failed to get nodes"
-
-    - name: Deploy to cluster
-      run: kubectl apply -f k8s/
+        echo "✅ Workflow is ready!"
+        echo "When you have a Kubernetes cluster, add the KUBECONFIG_B64 secret"
+        echo "and uncomment the deployment steps below."
+        
+        # TODO: Add these steps when you have a cluster:
+        # - name: Setup kubeconfig
+        #   run: |
+        #     mkdir -p $HOME/.kube
+        #     echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
+        #     chmod 600 $HOME/.kube/config
+        # 
+        # - name: Deploy to cluster
+        #   run: kubectl apply -f k8s/
