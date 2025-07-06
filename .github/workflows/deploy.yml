@@ -20,9 +20,26 @@ jobs:
         mkdir -p $HOME/.kube
         echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
         chmod 600 $HOME/.kube/config
+        echo "Kubeconfig file created"
+        ls -la $HOME/.kube/
+
+    - name: Debug kubeconfig
+      run: |
+        echo "Checking if KUBECONFIG_B64 secret is set..."
+        if [ -z "${{ secrets.KUBECONFIG_B64 }}" ]; then
+          echo "ERROR: KUBECONFIG_B64 secret is not set!"
+          exit 1
+        fi
+        echo "KUBECONFIG_B64 secret is set"
+        
+        echo "Current kubectl context:"
+        kubectl config current-context || echo "No context set"
+        
+        echo "Available contexts:"
+        kubectl config get-contexts || echo "No contexts found"
 
     - name: Test connection
       run: kubectl get nodes
 
     - name: Deploy to cluster
-      run: kubectl apply -f k8s
+      run: kubectl apply -f k8s/
