@@ -34,38 +34,41 @@ jobs:
         echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > $HOME/.kube/config
         echo "✅ Kubeconfig file created"
         echo "File size: $(wc -c < $HOME/.kube/config) bytes"
+        echo "File permissions:"
+        ls -la $HOME/.kube/config
 
     - name: Debug - Show kubeconfig
       run: |
         echo "Step 3: Showing kubeconfig contents..."
         echo "=== KUBECONFIG START ==="
-        cat $HOME/.kube/config
+        cat $HOME/.kube/config || echo "Failed to read kubeconfig file"
         echo "=== KUBECONFIG END ==="
 
     - name: Debug - Test kubectl
       run: |
         echo "Step 4: Testing kubectl configuration..."
-        kubectl config current-context
-        kubectl config get-contexts
-        kubectl config view --minify
-
-    - name: Debug - Show cluster info
-      run: |
-        echo "Step 5: Showing cluster information..."
         echo "Current context:"
-        kubectl config current-context || echo "No current context"
+        kubectl config current-context || echo "Failed to get current context"
         echo ""
         echo "All contexts:"
-        kubectl config get-contexts || echo "No contexts found"
+        kubectl config get-contexts || echo "Failed to get contexts"
         echo ""
-        echo "Cluster servers:"
-        kubectl config view -o jsonpath='{.clusters[*].cluster.server}' || echo "No cluster servers found"
+        echo "Cluster info:"
+        kubectl config view --minify || echo "Failed to view config"
+
+    - name: Debug - Show cluster servers
+      run: |
+        echo "Step 5: Showing cluster servers..."
+        echo "Cluster servers from kubeconfig:"
+        kubectl config view -o jsonpath='{.clusters[*].cluster.server}' || echo "Failed to get cluster servers"
+        echo ""
+        echo "Full config view:"
+        kubectl config view || echo "Failed to view full config"
 
     - name: Test connection
       run: |
         echo "Step 6: Testing cluster connection..."
-        kubectl get nodes
+        kubectl get nodes || echo "Failed to get nodes"
 
     - name: Deploy to cluster
       run: kubectl apply -f k8s/
-
