@@ -32,11 +32,18 @@ jobs:
         fi
         echo "KUBECONFIG_B64 secret is set"
         
+        echo "=== KUBECONFIG FILE CONTENTS ==="
+        cat $HOME/.kube/config
+        echo "=== END KUBECONFIG ==="
+        
         echo "Current kubectl context:"
         kubectl config current-context || echo "No context set"
         
         echo "Available contexts:"
         kubectl config get-contexts || echo "No contexts found"
+        
+        echo "Cluster info:"
+        kubectl config view --minify || echo "Cannot view config"
 
     - name: Test connection
       run: kubectl get nodes
